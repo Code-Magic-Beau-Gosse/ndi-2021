@@ -1,8 +1,9 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Browser.Dom exposing (Element)
 import Debug exposing (toString)
 import Dict exposing (Dict)
-import Gen.Params.Home exposing (Params)
+import Gen.Params.Sandbox exposing (Params)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -27,17 +28,13 @@ page shared req =
 
 
 type alias Model =
-    { url : String
-    , result : String
-    , urls : Dict String String
+    { name : String
     }
 
 
 init : Model
 init =
-    { url = ""
-    , result = ""
-    , urls = Dict.empty
+    { name = ""
     }
 
 
@@ -46,14 +43,14 @@ init =
 
 
 type Msg
-    = Url String
+    = Lifeguard String
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Url url ->
-            { model | url = url }
+        Lifeguard name ->
+            { model | name = name }
 
 
 
@@ -70,9 +67,11 @@ view model =
     { title = "Homepage"
     , body =
         [ Html.div [ class "home-page" ]
-            [ Html.div
-                [ class "input-container" ]
-                [ viewInput "text" "Search ..." model.url Url ]
+            [ Html.div [ class "home-title-container" ] [ Html.h1 [ class "home-title" ] [ Html.text "ShortenIT" ] ]
+
+            --, Html.div [ class "input-container" ] [ Html.input [ class "url-input", placeholder "Enter your url here.." ] [] ]
+            , Html.div [ class "input-container" ] [ viewInput "text" "Enter your url here ..." model.name Lifeguard ]
+            , Html.div [ class "result-container" ] [ Html.text model.name ]
             ]
         ]
     }
