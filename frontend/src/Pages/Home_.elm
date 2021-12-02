@@ -2,7 +2,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 
 import Debug exposing (toString)
 import Dict exposing (Dict)
-import Gen.Params.Home exposing (Params)
+import Gen.Params.Home_ exposing (Params)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -46,13 +46,13 @@ init =
 
 
 type Msg
-    = Url String
+    = SearchReq String
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Url url ->
+        SearchReq url ->
             { model | url = url }
 
 
@@ -72,7 +72,7 @@ view model =
         [ Html.div [ class "home-page" ]
             [ Html.div
                 [ class "input-container" ]
-                [ viewInput "text" "Search ..." model.url Url ]
+                [ viewInput "text" "Search ..." model.url SearchReq ]
             ]
         ]
     }
