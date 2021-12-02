@@ -66,3 +66,17 @@ initial : Storage
 initial =
     { counter = 0
     }
+
+
+increment : Storage -> Cmd msg
+increment storage =
+    { storage | counter = storage.counter + 1 }
+        |> toJson
+        |> save
+
+
+decrement : Storage -> Cmd msg
+decrement storage =
+    { storage | counter = storage.counter - 1 }
+        |> toJson
+        |> save
