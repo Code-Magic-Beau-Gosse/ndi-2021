@@ -2,6 +2,9 @@ module View exposing (View, map, none, placeholder, toBrowserDocument)
 
 import Browser
 import Element exposing (Element)
+import Element.Background as Background
+import Element.Font as Font
+import Palette exposing (..)
 
 
 type alias View msg =
@@ -32,5 +35,5 @@ map fn view =
 toBrowserDocument : View msg -> Browser.Document msg
 toBrowserDocument view =
     { title = view.title
-    , body = [ Element.layout [] view.element ]
+    , body = [ Element.layout [ Background.color Palette.prussianBlue, Font.color Palette.honeydew ] view.element ]
     }

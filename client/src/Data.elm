@@ -1,6 +1,9 @@
-module Data exposing (Data(..), LifeGuardInfo, BoatInfo, toElem, toString)
+module Data exposing (BoatInfo, Data(..), LifeGuardInfo, toElem, toString)
 
 import Element exposing (..)
+import Element.Background
+import Element.Border as Border
+import Palette
 
 
 type alias LifeGuardInfo =
@@ -64,12 +67,15 @@ toElem data =
         LifeGuard infos ->
             el []
                 (column
-                    []
+                    [ Element.spacing 20, Element.padding 10, Border.rounded 4, Border.solid, Border.width 2 ]
                     [ row []
                         [ text infos.firstName
+                        , text " "
                         , text infos.lastName
                         ]
                     , text infos.birth
+                    , text infos.role
+                    , text infos.rescue
                     ]
                 )
 

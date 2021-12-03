@@ -4,6 +4,7 @@ import Data exposing (BoatInfo, Data(..), LifeGuardInfo, toElem, toString)
 import Debug exposing (toString)
 import Dict exposing (Dict)
 import Element exposing (..)
+import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
 import Gen.Params.Home_ exposing (Params)
@@ -11,6 +12,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, at, field, float, int, string)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Page exposing (Page)
+import Palette exposing (..)
 import Request exposing (Request)
 import Result exposing (toMaybe)
 import Shared

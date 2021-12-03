@@ -30,4 +30,4 @@ celadonBlue =
 
 prussianBlue : Color
 prussianBlue =
-    rgb255 29 53 87
+    rgb255 14 17 168
