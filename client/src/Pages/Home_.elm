@@ -40,9 +40,25 @@ subscriptions model =
 -- INIT
 
 
+type FilterType
+    = LifeGuardFilter
+    | BoatFilter
+
+
+filterToString : FilterType -> String
+filterToString filter =
+    case filter of
+        LifeGuardFilter ->
+            "Life Guard"
+
+        BoatFilter ->
+            "Boat"
+
+
 type alias Model =
     { request : String
     , result : List Data
+    , filter : FilterType
     }
 
 
@@ -50,6 +66,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { request = ""
       , result = []
+      , filter = LifeGuardFilter
       }
     , Cmd.none
     )
@@ -64,13 +81,14 @@ type Msg
     | UpdateReq String
     | GotLifeGuardInfos (Result Http.Error (List LifeGuardInfo))
     | GotBotInfoRes (Result Http.Error (List BoatInfo))
+    | SwitchFilter
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SearchReq ->
-            ( model, getData )
+            ( model, getData model )
 
         UpdateReq request ->
             ( { model | request = request }, Cmd.none )
@@ -91,13 +109,34 @@ update msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
+        SwitchFilter ->
+            ( { model
+                | filter =
+                    case model.filter of
+                        LifeGuardFilter ->
+                            BoatFilter
 
-getData : Cmd Msg
-getData =
-    Http.get
-        { url = "http://localhost:8080/search/lifeguards"
-        , expect = Http.expectJson GotLifeGuardInfos lifeGuardListDecoder
-        }
+                        BoatFilter ->
+                            LifeGuardFilter
+              }
+            , Cmd.none
+            )
+
+
+getData : Model -> Cmd Msg
+getData model =
+    case model.filter of
+        LifeGuardFilter ->
+            Http.get
+                { url = "http://localhost:8080/search/lifeguards/" ++ model.request
+                , expect = Http.expectJson GotLifeGuardInfos lifeGuardListDecoder
+                }
+
+        BoatFilter ->
+            Http.get
+                { url = "http://localhost:8080/search/boats/" ++ model.request
+                , expect = Http.expectJson GotBotInfoRes boatListDecoder
+                }
 
 
 lifeGuardInfoDecode : Decoder LifeGuardInfo
@@ -121,8 +160,8 @@ boatDecode =
     Decode.map4 BoatInfo
         (at [ "id" ] int)
         (at [ "name" ] string)
-        (at [ "matricule" ] string)
-        (at [ "picture" ] string)
+        (at [ "date" ] string)
+        (at [ "rescue" ] string)
 
 
 boatListDecoder : Decoder (List BoatInfo)
@@ -161,6 +200,9 @@ view model =
             , Input.button
                 []
                 { onPress = Just SearchReq, label = text "Search" }
+            , Input.button
+                []
+                { onPress = Just SwitchFilter, label = text <| filterToString model.filter }
             , el [ Font.bold ]
                 (text
                     (if List.length model.result == 0 then

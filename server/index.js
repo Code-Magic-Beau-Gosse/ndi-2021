@@ -34,7 +34,7 @@ function getObjects(jsonPath, Jsonfiles) {
   return result;
 }
 
-function getLifeGuards(jsonPath, jsonFiles) {
+function getJSON(jsonPath, jsonFiles) {
   let result = [];
   for (const file in jsonFiles) {
     //console.log(jsonFiles[file]);
@@ -67,16 +67,21 @@ app.get("/search/name/:name", (req, res) => {
   });
 });
 
-app.get("/search/lifeguards", (req, res) => {
-  let lifeguards = getLifeGuards(lifeguardPath, lifeguardFiles);
-  res.status(200).send(lifeguards);
+app.get("/search/lifeguards/:name", (req, res) => {
+  let lifeguards = getJSON(lifeguardPath, lifeguardFiles);
+  let result = findBy(lifeguards, "firstName", req.params.name);
+  res.status(200).send([result]);
+});
+
+app.get("/search/boats/:name", (req, res) => {
+  let boats = getJSON(boatPath, boatFiles);
+  let result = findBy(boats, "name", req.params.name);
+  res.status(200).send([result]);
 });
 
 app.get("/search/lifeguards/:attribut/:value", (req, res) => {
-  let lifeguards = getLifeGuards(lifeguardPath, lifeguardFiles);
-  const { value } = req.params.value;
-  const { attribut } = req.params.attribut;
-  let result = findBy(lifeguards, attribut, value);
+  let lifeguards = getJSON(lifeguardPath, lifeguardFiles);
+  let result = findBy(lifeguards, req.params.attribut, req.params.value);
   res.status(200).send(result);
 });
 
@@ -86,6 +91,5 @@ app.post("/search/:id", (req, res) => {
 });
 
 function findBy(listObjects, attribut, value) {
-  result = listObjects.find((object) => object[attribut] === value);
-  return result;
+  return listObjects.find((object) => object[attribut] === value);
 }

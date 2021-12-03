@@ -1,9 +1,6 @@
 module Data exposing (Data(..), LifeGuardInfo, BoatInfo, toElem, toString)
 
 import Element exposing (..)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Font as Font
 
 
 type alias LifeGuardInfo =
@@ -19,8 +16,8 @@ type alias LifeGuardInfo =
 type alias BoatInfo =
     { id : Int
     , name : String
-    , matricule : String
-    , picture : String
+    , date : String
+    , rescue : String
     }
 
 
@@ -54,10 +51,10 @@ toString data =
                 ++ String.fromInt infos.id
                 ++ "\n, name: "
                 ++ infos.name
-                ++ "\n, matricule: "
-                ++ infos.matricule
-                ++ "\n, picture: "
-                ++ infos.picture
+                ++ "\n, date: "
+                ++ infos.date
+                ++ "\n, rescue: "
+                ++ infos.rescue
                 ++ "\n}"
 
 
