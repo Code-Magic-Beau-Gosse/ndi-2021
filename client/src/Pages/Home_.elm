@@ -12,7 +12,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, at, field, float, int, string)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Page exposing (Page)
-import Palette exposing (..)
+import Palette
 import Request exposing (Request)
 import Result exposing (toMaybe)
 import Shared
@@ -199,28 +199,29 @@ view model =
                 ]
             , centerX
             , height fill
-            , padding -10000
             ]
             [ el
-                [ Font.size 100 ]
-                (text "D1kerque Gang")
-            , el [ centerX, centerY ]
-                (Input.spellChecked
-                    []
-                    { onChange = UpdateReq
-                    , text = model.request
-                    , placeholder = Just (Input.placeholder [] (text "You should try 'Thomas'..."))
-                    , label = Input.labelLeft [] (text "")
-                    }
-                )
-            , Input.button
-                []
-                { onPress = Just SearchReq, label = text "Search" }
-            , Input.button
-                []
-                { onPress = Just SwitchFilter, label = text <| filterToString model.filter }
-            , column
-                [ centerX, centerY ]
-                (viewResult model.result)
+                [ Font.size 100, paddingEach { top = 100, right = 0, left = 0, bottom = 0 } ]
+                (text "Sea~rch")
+            , column [spacing 5, centerY]
+                [ el [ centerX, centerY ]
+                    (Input.spellChecked
+                        [ Font.color Palette.black ]
+                        { onChange = UpdateReq
+                        , text = model.request
+                        , placeholder = Just (Input.placeholder [] (text "You should try 'Thomas'..."))
+                        , label = Input.labelLeft [] (text "")
+                        }
+                    )
+                , Input.button
+                    [ Background.color Palette.imperialRed, padding 5 , alignRight]
+                    { onPress = Just SearchReq, label = text "Search" }
+                , Input.button
+                    [ Background.color Palette.powderBlue, padding 5 , alignRight, Font.color Palette.prussianBlue]
+                    { onPress = Just SwitchFilter, label = text <| filterToString model.filter }
+                , column
+                    [ centerX, centerY ]
+                    (viewResult model.result)
+                ]
             ]
     }

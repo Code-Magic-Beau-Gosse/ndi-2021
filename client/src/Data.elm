@@ -1,7 +1,7 @@
 module Data exposing (BoatInfo, Data(..), LifeGuardInfo, toElem, toString)
 
 import Element exposing (..)
-import Element.Background
+import Element.Background as Background
 import Element.Border as Border
 import Palette
 
@@ -65,7 +65,7 @@ toElem : Data -> Element msg
 toElem data =
     case data of
         LifeGuard infos ->
-            el []
+            el [Background.color Palette.celadonBlue]
                 (column
                     [ Element.spacing 20, Element.padding 10, Border.rounded 4, Border.solid, Border.width 2 ]
                     [ row []
