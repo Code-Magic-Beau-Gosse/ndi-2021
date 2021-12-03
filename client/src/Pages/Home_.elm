@@ -165,13 +165,21 @@ view model =
             , Input.button
                 []
                 { onPress = Just SearchReq, label = text "Search" }
-            , el [ Font.bold ] (text ("Result: " ++ (String.concat <| List.map (\info -> Data.toString (LifeGuard info)) model.result)))
+            , el [ Font.bold ]
+                (text
+                    (if List.length model.result == 0 then
+                        ""
+
+                     else
+                        "Result: "
+                    )
+                )
             , column
                 [ centerX, centerY ]
                 (List.foldl
                     (\e acc -> Data.toElem e :: acc)
                     []
-                    dataTest
+                    (List.map (\info -> LifeGuard info) model.result)
                 )
             ]
     }

@@ -1,4 +1,4 @@
-module Data exposing (Data(..), LifeGuardInfo, toElem, toString)
+module Data exposing (Data(..), LifeGuardInfo, BoatInfo, toElem, toString)
 
 import Element exposing (..)
 import Element.Background as Background
@@ -16,14 +16,17 @@ type alias LifeGuardInfo =
     }
 
 
+type alias BoatInfo =
+    { id : Int
+    , name : String
+    , matricule : String
+    , picture : String
+    }
+
+
 type Data
     = LifeGuard LifeGuardInfo
-    | Boat
-        { id : Int
-        , name : String
-        , matricule : String
-        , picture : String
-        }
+    | Boat BoatInfo
 
 
 toString : Data -> String
