@@ -86,7 +86,7 @@ update msg model =
 getData : Cmd Msg
 getData =
     Http.get
-        { url = "http://localhost:8080/search"
+        { url = "http://localhost:8080/search/lifeguards"
         , expect = Http.expectJson GotResult lifeGuardListDecoder
         }
 

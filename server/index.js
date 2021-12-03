@@ -40,7 +40,7 @@ function getLifeGuards(jsonPath, jsonFiles) {
     //console.log(jsonFiles[file]);
     let rawdata = fs.readFileSync(path.resolve(jsonPath, jsonFiles[file]));
     let json = JSON.parse(rawdata);
-    json["id"] = file;
+    json["id"] = parseInt(file);
     result.push(json);
   }
   return result;
