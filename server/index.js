@@ -33,18 +33,42 @@ function getObjects(jsonPath, Jsonfiles) {
   return result;
 }
 
+function getLifeGuards(jsonPath, jsonFiles) {
+  let result = [];
+  for (const file in jsonFiles) {
+    //console.log(jsonFiles[file]);
+    let rawdata = fs.readFileSync(path.resolve(jsonPath, jsonFiles[file]));
+    let json = JSON.parse(rawdata);
+    json["id"] = file;
+    result.push(json);
+  }
+  return result;
+}
+
+app.get("/search", (req, res) => {
+  res.status(200).send({
+    name: "",
+  });
+});
+
 app.get("/search/all", (req, res) => {
   let lifeguards = getObjects(lifeguardPath, lifeguardFiles);
-  //let boats = getObjects(boatPath, boatFiles);
-  res.status(200).send({ lifeguards });
+  let boats = getObjects(boatPath, boatFiles);
+  res.status(200).send({ lifeguards, boats });
 });
 
 app.get("/search/name/:name", (req, res) => {
+  let lifeguards = getObjects(lifeguardPath, lifeguardFiles);
+  let boats = getObjects(boatPath, boatFiles);
   const { name } = req.params;
-
   res.status(200).send({
     result: name,
   });
+});
+
+app.get("/search/lifeguards", (req, res) => {
+  let lifeguards = getLifeGuards(lifeguardPath, lifeguardFiles);
+  res.status(200).send(lifeguards);
 });
 
 app.post("/search/:id", (req, res) => {
@@ -52,7 +76,7 @@ app.post("/search/:id", (req, res) => {
   const { logo } = req.body;
 });
 
-//let rawdata = fs.readFileSync(path.resolve(lifeGuards, "lifeguard.json"));
-//let lifeguard = JSON.parse(rawdata);
-//console.log(lifeguard["1"]);
-//console.log();
+function findByName() {
+  let lifeguards = getObjects(lifeguardPath, lifeguardFiles);
+  let boats = getObjects(boatPath, boatFiles);
+}
