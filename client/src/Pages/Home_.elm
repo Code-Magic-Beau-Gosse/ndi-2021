@@ -198,6 +198,7 @@ view model =
                 ]
             , centerX
             , height fill
+            , padding -10000
             ]
             [ el
                 [ Font.size 100 ]
@@ -207,7 +208,7 @@ view model =
                     []
                     { onChange = UpdateReq
                     , text = model.request
-                    , placeholder = Just (Input.placeholder [] (text "Georges..."))
+                    , placeholder = Just (Input.placeholder [] (text "You should try 'Thomas'..."))
                     , label = Input.labelLeft [] (text "")
                     }
                 )
