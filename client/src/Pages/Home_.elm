@@ -1,6 +1,6 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Data exposing (Data(..), LifeGuardInfo, toElem, toString)
+import Data exposing (BoatInfo, Data(..), LifeGuardInfo, toElem, toString)
 import Debug exposing (toString)
 import Dict exposing (Dict)
 import Element exposing (..)
@@ -42,7 +42,7 @@ subscriptions model =
 
 type alias Model =
     { request : String
-    , result : List LifeGuardInfo
+    , result : List Data
     }
 
 
@@ -62,7 +62,8 @@ init =
 type Msg
     = SearchReq
     | UpdateReq String
-    | GotResult (Result Http.Error (List LifeGuardInfo))
+    | GotLifeGuardInfos (Result Http.Error (List LifeGuardInfo))
+    | GotBotInfoRes (Result Http.Error (List BoatInfo))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -74,10 +75,18 @@ update msg model =
         UpdateReq request ->
             ( { model | request = request }, Cmd.none )
 
-        GotResult result ->
+        GotLifeGuardInfos result ->
             case result of
-                Ok data ->
-                    ( { model | result = data }, Cmd.none )
+                Ok infos ->
+                    ( { model | result = List.map (\info -> LifeGuard info) infos }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GotBotInfoRes result ->
+            case result of
+                Ok infos ->
+                    ( { model | result = List.map (\info -> Boat info) infos }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -87,7 +96,7 @@ getData : Cmd Msg
 getData =
     Http.get
         { url = "http://localhost:8080/search/lifeguards"
-        , expect = Http.expectJson GotResult lifeGuardListDecoder
+        , expect = Http.expectJson GotLifeGuardInfos lifeGuardListDecoder
         }
 
 
@@ -107,35 +116,22 @@ lifeGuardListDecoder =
     Decode.list lifeGuardInfoDecode
 
 
+boatDecode : Decoder BoatInfo
+boatDecode =
+    Decode.map4 BoatInfo
+        (at [ "id" ] int)
+        (at [ "name" ] string)
+        (at [ "matricule" ] string)
+        (at [ "picture" ] string)
+
+
+boatListDecoder : Decoder (List BoatInfo)
+boatListDecoder =
+    Decode.list boatDecode
+
+
 
 -- VIEW
-
-
-dataTest : List Data
-dataTest =
-    [ LifeGuard
-        { id = 0
-        , firstName = "Emile"
-        , lastName = "Rolley"
-        , birth = "2021-02-03"
-        , role = "Doing NDI..."
-        , rescue = "rescue"
-        }
-    , LifeGuard
-        { id = 1
-        , firstName = "Gilles"
-        , lastName = "Gilles"
-        , birth = "2021-02-03"
-        , role = "Doing NDI..."
-        , rescue = "rescue"
-        }
-    , Boat
-        { id = 2
-        , name = "L'Hermione"
-        , matricule = "0HASDF-ADF"
-        , picture = "https://s1.qwant.com/thumbr/0x380/0/4/ebf6e0d454b4ba0ef53f84ca73f553128230f4964356e152058d2cf8ab184e/hermione_en_mer_op_9149_0.jpg?u=https%3A%2F%2Fminiweb.metropoletpm.fr%2Fsites%2Fnew.tpm-agglo.fr%2Ffiles%2Fhermione_en_mer_op_9149_0.jpg&q=0&b=1&p=0&a=0"
-        }
-    ]
 
 
 view : Model -> View Msg
@@ -176,10 +172,6 @@ view model =
                 )
             , column
                 [ centerX, centerY ]
-                (List.foldl
-                    (\e acc -> Data.toElem e :: acc)
-                    []
-                    (List.map (\info -> LifeGuard info) model.result)
-                )
+                (List.map Data.toElem model.result)
             ]
     }
