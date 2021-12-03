@@ -71,12 +71,20 @@ app.get("/search/lifeguards", (req, res) => {
   res.status(200).send(lifeguards);
 });
 
+app.get("/search/lifeguards/name/:name", (req, res) => {
+  let lifeguards = getLifeGuards(lifeguardPath, lifeguardFiles);
+  const { name } = req.params;
+  res.status(200).send();
+});
+
 app.post("/search/:id", (req, res) => {
   const { id } = req.params;
   const { logo } = req.body;
 });
 
-function findByName() {
-  let lifeguards = getObjects(lifeguardPath, lifeguardFiles);
-  let boats = getObjects(boatPath, boatFiles);
+function findBy(objects, attribut, value) {
+  for (const attribut in objects) {
+    if (objects[attribut] === value) {
+    }
+  }
 }
