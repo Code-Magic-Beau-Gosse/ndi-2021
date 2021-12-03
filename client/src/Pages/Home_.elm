@@ -11,6 +11,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, at, field, float, int, string)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Page exposing (Page)
+import Palette
 import Request exposing (Request)
 import Result exposing (toMaybe)
 import Shared
@@ -57,7 +58,7 @@ filterToString filter =
 
 type alias Model =
     { request : String
-    , result : List Data
+    , result : Result String (List Data)
     , filter : FilterType
     }
 
@@ -65,7 +66,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( { request = ""
-      , result = []
+      , result = Ok []
       , filter = LifeGuardFilter
       }
     , Cmd.none
@@ -96,18 +97,21 @@ update msg model =
         GotLifeGuardInfos result ->
             case result of
                 Ok infos ->
-                    ( { model | result = List.map (\info -> LifeGuard info) infos }, Cmd.none )
+                    ( { model | result = Ok <| List.map (\info -> LifeGuard info) infos }, Cmd.none )
+
+                Err (Http.BadBody _) ->
+                    ( { model | result = Err "Sorry, no corresponding match found..." }, Cmd.none )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    ( { model | result = Err "Sorry, an error occured..." }, Cmd.none )
 
         GotBotInfoRes result ->
             case result of
                 Ok infos ->
-                    ( { model | result = List.map (\info -> Boat info) infos }, Cmd.none )
+                    ( { model | result = Ok <| List.map (\info -> Boat info) infos }, Cmd.none )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    ( { model | result = Err "" }, Cmd.none )
 
         SwitchFilter ->
             ( { model
@@ -173,6 +177,16 @@ boatListDecoder =
 -- VIEW
 
 
+viewResult : Result String (List Data) -> List (Element msg)
+viewResult result =
+    case result of
+        Ok res ->
+            List.map Data.toElem res
+
+        Err msg ->
+            [ el [ Font.color Palette.imperialRed ] (text msg) ]
+
+
 view : Model -> View Msg
 view model =
     { title = "Homepage"
@@ -189,7 +203,7 @@ view model =
                 [ Font.size 100 ]
                 (text "D1kerque Gang")
             , el [ centerX, centerY ]
-                (Input.search
+                (Input.spellChecked
                     []
                     { onChange = UpdateReq
                     , text = model.request
@@ -203,17 +217,8 @@ view model =
             , Input.button
                 []
                 { onPress = Just SwitchFilter, label = text <| filterToString model.filter }
-            , el [ Font.bold ]
-                (text
-                    (if List.length model.result == 0 then
-                        ""
-
-                     else
-                        "Result: "
-                    )
-                )
             , column
                 [ centerX, centerY ]
-                (List.map Data.toElem model.result)
+                (viewResult model.result)
             ]
     }
