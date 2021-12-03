@@ -6,7 +6,7 @@ const cors = require("cors");
 const lifeguardPath = __dirname + "/data/lifeguards";
 const boatPath = __dirname + "/data/boats";
 
-app.use(cors())
+app.use(cors());
 app.listen(PORT, () => console.log(`It's running on localhost:${PORT}`));
 
 function scanDirectory(directory) {
@@ -72,10 +72,12 @@ app.get("/search/lifeguards", (req, res) => {
   res.status(200).send(lifeguards);
 });
 
-app.get("/search/lifeguards/name/:name", (req, res) => {
+app.get("/search/lifeguards/:attribut/:value", (req, res) => {
   let lifeguards = getLifeGuards(lifeguardPath, lifeguardFiles);
-  const { name } = req.params;
-  res.status(200).send();
+  const { value } = req.params.value;
+  const { attribut } = req.params.attribut;
+  let result = findBy(lifeguards, attribut, value);
+  res.status(200).send(result);
 });
 
 app.post("/search/:id", (req, res) => {
@@ -83,9 +85,7 @@ app.post("/search/:id", (req, res) => {
   const { logo } = req.body;
 });
 
-function findBy(objects, attribut, value) {
-  for (const attribut in objects) {
-    if (objects[attribut] === value) {
-    }
-  }
+function findBy(listObjects, attribut, value) {
+  result = listObjects.find((object) => object[attribut] === value);
+  return result;
 }
