@@ -1,4 +1,4 @@
-module Data exposing (Data(..), toElem, toString)
+module Data exposing (Data(..), LifeGuardInfo, toElem, toString)
 
 import Element exposing (..)
 import Element.Background as Background
@@ -6,14 +6,18 @@ import Element.Border as Border
 import Element.Font as Font
 
 
+type alias LifeGuardInfo =
+    { id : Int
+    , firstName : String
+    , lastName : String
+    , birth : String
+    , role : String
+    , rescue : String
+    }
+
+
 type Data
-    = LifeGuard
-        { id : Int
-        , firstName : String
-        , lastName : String
-        , age : Int
-        , bio : String
-        }
+    = LifeGuard LifeGuardInfo
     | Boat
         { id : Int
         , name : String
@@ -33,10 +37,12 @@ toString data =
                 ++ infos.firstName
                 ++ "\n, lastName: "
                 ++ infos.lastName
-                ++ "\n, age: "
-                ++ String.fromInt infos.age
-                ++ "\n, bio: "
-                ++ String.fromInt infos.age
+                ++ "\n, birth: "
+                ++ infos.birth
+                ++ "\n, role: "
+                ++ infos.role
+                ++ "\n, rescue: "
+                ++ infos.rescue
                 ++ "\n}"
 
         Boat infos ->
@@ -63,7 +69,7 @@ toElem data =
                         [ text infos.firstName
                         , text infos.lastName
                         ]
-                    , text (String.fromInt infos.age)
+                    , text infos.birth
                     ]
                 )
 

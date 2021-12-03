@@ -1,12 +1,15 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Data exposing (Data(..), toElem, toString)
+import Data exposing (Data(..), LifeGuardInfo, toElem, toString)
 import Debug exposing (toString)
 import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Font as Font
 import Element.Input as Input
 import Gen.Params.Home_ exposing (Params)
+import Http
+import Json.Decode as Decode exposing (Decoder, at, field, float, int, string)
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Page exposing (Page)
 import Request exposing (Request)
 import Result exposing (toMaybe)
@@ -14,13 +17,23 @@ import Shared
 import View exposing (View)
 
 
+
+-- JSON GET
+
+
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
 page shared req =
-    Page.sandbox
+    Page.element
         { init = init
         , update = update
         , view = view
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -29,15 +42,17 @@ page shared req =
 
 type alias Model =
     { request : String
-    , result : String
+    , result : List LifeGuardInfo
     }
 
 
-init : Model
+init : ( Model, Cmd Msg )
 init =
-    { request = ""
-    , result = ""
-    }
+    ( { request = ""
+      , result = []
+      }
+    , Cmd.none
+    )
 
 
 
@@ -45,14 +60,51 @@ init =
 
 
 type Msg
-    = SearchReq String
+    = SearchReq
+    | UpdateReq String
+    | GotResult (Result Http.Error (List LifeGuardInfo))
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SearchReq request ->
-            { model | request = request }
+        SearchReq ->
+            ( model, getData )
+
+        UpdateReq request ->
+            ( { model | request = request }, Cmd.none )
+
+        GotResult result ->
+            case result of
+                Ok data ->
+                    ( { model | result = data }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+
+getData : Cmd Msg
+getData =
+    Http.get
+        { url = "http://localhost:8080/search"
+        , expect = Http.expectJson GotResult lifeGuardListDecoder
+        }
+
+
+lifeGuardInfoDecode : Decoder LifeGuardInfo
+lifeGuardInfoDecode =
+    Decode.map6 LifeGuardInfo
+        (at [ "id" ] int)
+        (at [ "firstName" ] string)
+        (at [ "lastName" ] string)
+        (at [ "birth" ] string)
+        (at [ "role" ] string)
+        (at [ "rescue" ] string)
+
+
+lifeGuardListDecoder : Decoder (List LifeGuardInfo)
+lifeGuardListDecoder =
+    Decode.list lifeGuardInfoDecode
 
 
 
@@ -65,15 +117,17 @@ dataTest =
         { id = 0
         , firstName = "Emile"
         , lastName = "Rolley"
-        , age = 21
-        , bio = "Doing NDI..."
+        , birth = "2021-02-03"
+        , role = "Doing NDI..."
+        , rescue = "rescue"
         }
     , LifeGuard
         { id = 1
         , firstName = "Gilles"
         , lastName = "Gilles"
-        , age = 20
-        , bio = "Doing NDI... too"
+        , birth = "2021-02-03"
+        , role = "Doing NDI..."
+        , rescue = "rescue"
         }
     , Boat
         { id = 2
@@ -88,22 +142,30 @@ view : Model -> View Msg
 view model =
     { title = "Homepage"
     , element =
-        column [ centerX, height fill ]
-            [ el
-                [ Font.size 100
-                , Font.family
-                    [ Font.typeface "Helvetica", Font.sansSerif ]
+        column
+            [ Font.family
+                [ Font.typeface "opendyslexic"
+                , Font.sansSerif
                 ]
+            , centerX
+            , height fill
+            ]
+            [ el
+                [ Font.size 100 ]
                 (text "D1kerque Gang")
             , el [ centerX, centerY ]
                 (Input.search
                     []
-                    { onChange = SearchReq
+                    { onChange = UpdateReq
                     , text = model.request
                     , placeholder = Just (Input.placeholder [] (text "Georges..."))
                     , label = Input.labelLeft [] (text "")
                     }
                 )
+            , Input.button
+                []
+                { onPress = Just SearchReq, label = text "Search" }
+            , el [ Font.bold ] (text ("Result: " ++ (String.concat <| List.map (\info -> Data.toString (LifeGuard info)) model.result)))
             , column
                 [ centerX, centerY ]
                 (List.foldl
