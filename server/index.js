@@ -4,7 +4,9 @@ const lifeGuards = "data/lifeguards";
 const boats = "data/boats";
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 
+app.use(cors())
 app.listen(PORT, () => console.log(`It's running on localhost:${PORT}`));
 
 app.get("/search", (req, res) => {
