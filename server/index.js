@@ -2,10 +2,11 @@ const app = require("express")();
 const PORT = 8080;
 const fs = require("fs");
 const path = require("path");
-
+const cors = require("cors");
 const lifeguardPath = __dirname + "/data/lifeguards";
 const boatPath = __dirname + "/data/boats";
 
+app.use(cors())
 app.listen(PORT, () => console.log(`It's running on localhost:${PORT}`));
 
 function scanDirectory(directory) {
